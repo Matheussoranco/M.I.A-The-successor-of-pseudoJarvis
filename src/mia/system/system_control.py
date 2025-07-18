@@ -6,7 +6,10 @@ import platform
 import shutil
 import subprocess
 import pyperclip
-import psutil
+from ..utils.optional_deps import safe_import
+
+# Optional dependency handling
+psutil = safe_import('psutil', 'system process management')
 
 class SystemControl:
     @staticmethod
@@ -48,11 +51,23 @@ class SystemControl:
 
     @staticmethod
     def list_processes():
-        return [(p.pid, p.name()) for p in psutil.process_iter()]
+        """List running processes. Returns empty list if psutil not available."""
+        if psutil is None:
+            return []
+        try:
+            return [(p.pid, p.name()) for p in psutil.process_iter()]
+        except Exception:
+            return []
 
     @staticmethod
     def kill_process(pid):
-        p = psutil.Process(pid)
-        p.terminate()
+        """Kill a process by PID. Does nothing if psutil not available."""
+        if psutil is None:
+            raise RuntimeError("psutil not available - cannot manage processes")
+        try:
+            p = psutil.Process(pid)
+            p.terminate()
+        except Exception as e:
+            raise RuntimeError(f"Failed to kill process {pid}: {e}")
 
     # Add more system actions as needed (clipboard, process, etc.)

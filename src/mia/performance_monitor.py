@@ -1,7 +1,6 @@
 """
 Performance Monitor - System performance monitoring and optimization
 """
-import psutil
 import time
 import logging
 from typing import Dict, Any, Optional, List
@@ -12,6 +11,10 @@ import tracemalloc
 
 from .exceptions import PerformanceError
 from .config_manager import ConfigManager
+from .utils.optional_deps import safe_import
+
+# Optional dependency handling
+psutil = safe_import('psutil', 'system monitoring')
 
 logger = logging.getLogger(__name__)
 
